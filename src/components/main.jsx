@@ -9,9 +9,7 @@ export default  function Main(props) {
     const[visbleIcon,setVisbleIcon]=useState(false)
     const authContext=useContext(AuthContext)
     
-    const[validUser,setValidUser]=useState('default')
-    const[validEmail,setValidEmail]=useState('default')
-    const[validPassword,setValidPassword]=useState('default')
+    const[error,setErorr]=useState({})
 
     function toggleVisbleIcon(){
         if(visbleIcon==false){
@@ -38,16 +36,10 @@ export default  function Main(props) {
     function handleLogin(e){
         e.preventDefault();
         //validation  
-        valiationForm()          
-    }
-
-    useEffect(()=>{
-        if(validUser=='default' &&validEmail=='default' && validPassword=='default'){
-            return;
-        } 
-        
-        if(validUser=='no error' &&validEmail=='no error' && validPassword=='no error'){
-            // console.log('hi')
+         
+        let checkError=valiationForm()
+  
+        if(checkError=='no error'){
             const token='key' //this token should get from api request
             //store data in local storage
             localStorage.setItem('token',token)
@@ -57,36 +49,38 @@ export default  function Main(props) {
 
             //store data in context
             authContext.setAuth({token,user,email,password})
-        }
-    },[validUser,validEmail,validPassword])
+        }         
+    }
 
     function valiationForm(){
+        let error={}
+
+
         //user validation
         if(user ==''){
-            setValidUser('empty user')
-        }else{
-            setValidUser('no error')
+            error.user='empty user'
         }
         //email validation
         let regEmail=/^([a-zA-Z0-9\.-]+)@([a-z0-9]+)[.]([a-z]{2,10})(.[a-z]{2,10})?$/
         if(email ==''){
-            setValidEmail('empty email')
+            error.email='empty email'
         }else if (!regEmail.test(email)){
-            setValidEmail('your email must have this pattern example@gmail.com')
-        }else{
-            setValidEmail('no error')
+            error.email='your email must have this pattern example@gmail.com'
         }
         //password validation
         let regPass=/[a-zA-Z]+/
         if(password ==''){
-            setValidPassword('empty password')
+            error.password='empty password'
         }else if(password.length <5){
-            setValidPassword('minmum password must contains 5 characters')
+            error.password='minmum password must contains 5 characters'
         }else if(!regPass.test(password)){
-            setValidPassword('password must contain letters')
-        }else{
-            setValidPassword('no error') 
+            error.password='password must contain letters'
         }
+
+        setErorr(error)
+        
+
+        return Object.keys(error).length==0? 'no error':'error'
     }
 
 
@@ -118,7 +112,7 @@ export default  function Main(props) {
                     onInput={e=> setUser(e.target.value)}
                     
                     />
-                    {validUser=='default'||validUser=='no error'?  '' : <Alert message={validUser}/>}
+                    {error.user?  <Alert message={error.user}/>:''  }
 
                     <input
                     type="email" 
@@ -128,7 +122,7 @@ export default  function Main(props) {
                     value={email}
                     onChange={e=> setEmail(e.target.value)}
                     />
-                    {validEmail=='default'||validEmail=='no error'?  '' : <Alert message={validEmail}/>}
+                    {error.email?  <Alert message={error.email}/> :''}
 
                     <div className="position-relative mt-3">
                         <span className="btn me-1 p-0 position-absolute top-0 end-0  " onClick={toggleVisbleIcon}>
@@ -143,7 +137,7 @@ export default  function Main(props) {
                             onChange={e=> setPassword(e.target.value)}
                         />
                     </div>
-                    {validPassword=='default'||validPassword=='no error'?  '' : <Alert message={validPassword}/>}
+                    {error.password?  <Alert message={error.password}/> :''}
                     
                     <br/>
                     <button

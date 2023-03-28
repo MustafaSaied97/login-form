@@ -1,2 +1,2 @@
-#login form using REactJS
+#login form using ReactJS
 #and  using RegEx for validation
